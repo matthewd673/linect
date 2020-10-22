@@ -9,4 +9,4 @@ Simple line counter
 
 - Count the number of lines in a file: `linect Program.cs`
 - Count the number of lines in all files in a directory: `linect C:\Users\Matthew\Source\Repos`
-- Count the number of lines in all *\*.cs* files in a directory: `linect C:\Users\Matthew\Source\Repos cs`
+- Count the number of lines in all *\*.cs* files in a directory: `linect C:\Users\Matthew\Source\Repos *.cs`

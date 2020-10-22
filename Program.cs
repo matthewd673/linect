@@ -17,18 +17,23 @@ namespace linect
             else
             {
                 string path = args[0];
-                string ext = "*";
+                string pattern = "";
                 if(args.Length > 1)
-                    ext = args[1];
+                    pattern = args[1];
 
-                string countInfo = path + " *." + ext;
+                string countInfo = path + " " + pattern;
 
-                if(IsDirectory(path))
+                if(!path.Contains("*") && IsDirectory(path))
                 {
-                    count = GetTotalLines(path, ext);
+                    count = GetTotalLines(path, pattern);
                 }
                 else
-                    count = GetFileLines(path);
+                {
+                    if(!path.Contains("*") && File.Exists(path))
+                        count = GetFileLines(path); //search file
+                    else
+                        count = GetTotalLines(Directory.GetCurrentDirectory(), path); //search current directory based on pattern (path is assumed to be a pattern)
+                }
 
                 Output(count, countInfo);
             }
@@ -49,10 +54,9 @@ namespace linect
             return File.ReadLines(filename).Count(); 
         }
 
-        static long GetTotalLines(string directory, string extension)
+        static long GetTotalLines(string directory, string pattern)
         {
-            string[] filenames;
-            filenames = Directory.GetFiles(directory, "*." + extension, SearchOption.AllDirectories);
+            string[] filenames = GetFileNames(directory, pattern);
 
             long count = 0;
             foreach(string f in filenames)
@@ -64,9 +68,22 @@ namespace linect
 
         }
 
+        static String[] GetFileNames(string directory, string pattern)
+        {
+            string[] filenames;
+            filenames = Directory.GetFiles(directory, pattern, SearchOption.AllDirectories);
+            return filenames;
+        }
+
         static string FormatLong(long number)
         {
-            char[] chars = number.ToString().ToCharArray();
+            String numString = number.ToString();
+
+            //don't bother formatting if its 3 digits or less
+            if(numString.Length <= 3)
+                return numString;
+            
+            char[] chars = numString.ToCharArray();
             string formatted = "";
 
             for(int i = 0; i < chars.Length; i++)
