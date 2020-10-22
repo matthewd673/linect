@@ -7,13 +7,20 @@ namespace linect
 {
     class Program
     {
+
+        static bool errorThrown = false;
+
         static void Main(string[] args) //FORMAT: linect path [ext]
         {
 
             long count = 0;
 
             if(args.Length == 0) //no args provided
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Provide a filename or directory & extension.");
+                Console.ForegroundColor = ConsoleColor.Gray;
+            }
             else
             {
                 string path = args[0];
@@ -35,23 +42,48 @@ namespace linect
                         count = GetTotalLines(Directory.GetCurrentDirectory(), path); //search current directory based on pattern (path is assumed to be a pattern)
                 }
 
-                Output(count, countInfo);
+                if(!errorThrown)
+                    Output(count, countInfo);
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("An error occurred when counting the file lines.");
+                    Console.WriteLine("Ensure that the file or directory specified exists.");
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                }
             }
         }
 
         static bool IsDirectory(string path)
         {
+            try
+            {
             FileAttributes attributes = File.GetAttributes(path);
 
             if(attributes == FileAttributes.Directory)
                 return true;
             else
                 return false;
+            }
+            catch (Exception e)
+            {
+                errorThrown = true;
+            }
+            return false;
         }
 
         static long GetFileLines(string filename)
         {
-            return File.ReadLines(filename).Count(); 
+            try
+            {
+                int count = File.ReadLines(filename).Count();
+                return count;
+            }
+            catch (Exception e)
+            {
+                errorThrown = true;
+            }
+            return 0;
         }
 
         static long GetTotalLines(string directory, string pattern)
